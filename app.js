@@ -53,8 +53,8 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.get("/dashboard", authenticate, (req, res) => {
-  res.send(req.user);
+app.get("/dashboard", (req, res) => {
+  res.send('hi');
 });
 
 app.post("/login", async (req, res) => {
@@ -65,10 +65,7 @@ app.post("/login", async (req, res) => {
   }
   res.send(user);
   const token = await user.generateToken();
-  // res.cookie("token", token, {
-  //   httpOnly:true,
-  //   expires : new Date(Date.now() + 86400)
-  // })
+   
 });
 
 app.get("/", (req, res) => {
