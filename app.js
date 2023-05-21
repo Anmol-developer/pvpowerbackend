@@ -19,10 +19,19 @@ mongoose
 
 app.post('/', (req,res)=>{
     const {name, email, password} = req.body;
-    User.create({name,email,password}).then((data)=>{
-        console.log(data);
-        console.log(data.id);
-    }).catch((err)=>console.log(err))
+    User.findOne({email}).then((data)=>{
+      if (data) {
+        console.log('user already exists');
+      } else{
+        User.create({name,email,password}).then((data)=>{
+          console.log(data);
+          console.log(data.id);
+      }).catch((err)=>console.log(err))
+      }
+    }).catch((err)=>{
+        console.log(err);
+    })
+    
 })
 
 app.get("/", (req, res) => {
