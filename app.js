@@ -37,7 +37,9 @@ mongoose
       console.log(error);
     }
   }
-
+app.forecast('/forecast',(req,res)=>{
+  res.send('hi')
+})
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
   const isUserExist = User.findOne({ email });
