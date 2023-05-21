@@ -7,9 +7,11 @@ const { User } = require("./schema/UserSchema");
 const fs = require("fs");
 const XLSX = require("xlsx");
 const jwt = require("jsonwebtoken");
+const cookieParser = require('cookie-parser')
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser())
 
 const uri = process.env.URI;
 
@@ -22,7 +24,8 @@ mongoose
 
   const authenticate = async(req,res,next)=>{
     try {
-      const token = req.cookies.token;
+      // const token = req.cookies.token;
+      // console.log("cokie",req.cookies);
       const verify = jwt.verify(token, process.env.SECRET)
       const user = await User.findOne({_id:verify, "tokens.token":token});
       if(!user) { throw new Error('user not found') }
@@ -62,10 +65,10 @@ app.post("/login", async (req, res) => {
   }
   res.send(user);
   const token = await user.generateToken();
-  res.cookie("token", token, {
-    httpOnly:true,
-    expires : new Date(Date.now() + 86400)
-  })
+  // res.cookie("token", token, {
+  //   httpOnly:true,
+  //   expires : new Date(Date.now() + 86400)
+  // })
 });
 
 app.get("/", (req, res) => {
