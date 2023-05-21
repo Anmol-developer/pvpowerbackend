@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const { User } = require("./schema/UserSchema");
 const fs = require("fs");
 const XLSX = require("xlsx");
+const jwt = require("jsonwebtoken");
 
 app.use(cors());
 app.use(express.json());
@@ -19,35 +20,52 @@ mongoose
     console.log("connected!");
   });
 
-app.post("/signup", async(req, res) => {
-  const { username, email, password } = req.body;
-  const isUserExist = User.findOne({ email });
+  const authenticate = async(req,res,next)=>{
     try {
-      if (isUserExist) {
-        res.send('user already exists')
-      } else {
-        const result = await User.create({ username, email, password });
-        res.send(result)
-      }
+      const token = req.cookies.token;
+      const verify = jwt.verify(token, process.env.SECRET)
+      const user = await User.findOne({_id:verify, "tokens.token":token});
+      if(!user) { throw new Error('user not found') }
+      req.user = user;
+      req.token = token;
+
+      next();
     } catch (error) {
       console.log(error);
     }
-    
+  }
+
+app.post("/signup", async (req, res) => {
+  const { username, email, password } = req.body;
+  const isUserExist = User.findOne({ email });
+  try {
+    if (isUserExist) {
+      res.send("user already exists");
+    } else {
+      const result = await User.create({ username, email, password });
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-app.post("/login", (req, res) => {
+app.get("/dashboard", authenticate, (req, res) => {
+  res.send(req.user);
+});
+
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  User.findOne({ email,password })
-    .then((data) => {
-      if (data) {
-        res.send(data);
-      }else{
-        res.send('user does not exists')
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  const user = await User.findOne({ email, password });
+  if (!user) {
+    res.send("user does not exists");
+  }
+  res.send(user);
+  const token = await user.generateToken();
+  res.cookie("token", token, {
+    httpOnly:true,
+    expires : new Date(Date.now() + 86400)
+  })
 });
 
 app.get("/", (req, res) => {
