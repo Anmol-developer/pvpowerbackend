@@ -1,14 +1,34 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
+require("dotenv").config();
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const mongoose = require("mongoose");
+const {User} = require('./schema/UserSchema')
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/',(req,res)=>{
-    res.send('Hello world')
+const uri = process.env.URI;
+
+mongoose.set("strictQuery", false);
+mongoose
+  .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("connected!");
+  });
+
+app.post('/', (req,res)=>{
+    const {name, email, password} = req.body;
+    User.create({name,email,password}).then((data)=>{
+        console.log(data);
+        console.log(data.id);
+    }).catch((err)=>console.log(err))
 })
 
-app.listen(5000,()=>{
-console.log('app listening on port 5000');
-})
+app.get("/", (req, res) => {
+  res.send("Hello world");
+});
+
+app.listen(5000, () => {
+  console.log("app listening on port 5000");
+});
