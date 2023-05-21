@@ -2,8 +2,8 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose;
 
 const FileSchema = new Schema({
-    username: String,
-    email: String,
+    username: {type: String, required:true},
+    email: {type:String, unique: true, required : true},
     date : Date,
     data : Buffer
 })
