@@ -4,7 +4,6 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 const { User } = require("./schema/UserSchema");
-const fs = require("fs");
 const xlsx = require("xlsx");
 const jwt = require("jsonwebtoken");
 const cookieParser = require('cookie-parser')
@@ -56,7 +55,7 @@ app.get('/forecast',(req,res)=>{
         ).padStart(2, "0")}/${String(dateObject.y)}`,
         time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
         Predictedpv: row[1],
-        Actualpv: row[0],
+        // Actualpv: row[0],
       };
     });
     // Send the data as JSON response
@@ -66,6 +65,19 @@ app.get('/forecast',(req,res)=>{
     res.status(500).send('Error reading Excel file');
   }
 })
+
+// Endpoint to download the Excel file
+app.get('/download', (req, res) => {
+  const filePath = 'C:\\Users\\Hp\\Downloads\\trial_forecast.xlsx'; // Update with the actual file path
+
+  res.download(filePath, (err) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send('Error downloading file');
+    }
+  });
+});
+
 
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
