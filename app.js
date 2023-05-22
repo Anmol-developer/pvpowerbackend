@@ -37,7 +37,7 @@ mongoose
     }
   }
 app.get('/forecast',(req,res)=>{
-  const filePath = 'C:\\Users\\Hp\\Downloads\\trial_forecast.xlsx'; // Update with the actual file path
+  const filePath = 'C:\\Users\\Hp\\Downloads\\test.xlsx'; // Update with the actual file path
 
   try {
     const workbook = xlsx.readFile(filePath);
@@ -46,7 +46,7 @@ app.get('/forecast',(req,res)=>{
     const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
 
     const extractedData = jsonData.slice(1).map((row) => {
-      const numericValue = parseFloat(row[2]);
+      const numericValue = parseFloat(row[3]);
       const dateObject = xlsx.SSF.parse_date_code(numericValue);
       
       return {
@@ -54,8 +54,8 @@ app.get('/forecast',(req,res)=>{
           dateObject.d
         ).padStart(2, "0")}/${String(dateObject.y)}`,
         time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
-        Predictedpv: row[1],
-        // Actualpv: row[0],
+        Predictedpv: row[2],
+        // Actualpv: row[1],
       };
     });
     // Send the data as JSON response
@@ -68,7 +68,7 @@ app.get('/forecast',(req,res)=>{
 
 // Endpoint to download the Excel file
 app.get('/download', (req, res) => {
-  const filePath = 'C:\\Users\\Hp\\Downloads\\trial_forecast.xlsx'; // Update with the actual file path
+  const filePath = 'C:\\Users\\Hp\\Downloads\\test.xlsx'; // Update with the actual file path
 
   res.download(filePath, (err) => {
     if (err) {
