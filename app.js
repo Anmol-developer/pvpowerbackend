@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { User } = require("./schema/UserSchema");
 const fs = require("fs");
-const XLSX = require("xlsx");
+const xlsx = require("xlsx");
 const jwt = require("jsonwebtoken");
 const cookieParser = require('cookie-parser')
 
@@ -37,9 +37,36 @@ mongoose
       console.log(error);
     }
   }
-app.forecast('/forecast',(req,res)=>{
-  res.send('hi')
+app.get('/forecast',(req,res)=>{
+  const filePath = 'C:\\Users\\Hp\\Downloads\\trial_forecast.xlsx'; // Update with the actual file path
+
+  try {
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+
+    const extractedData = jsonData.slice(1).map((row) => {
+      const numericValue = parseFloat(row[2]);
+      const dateObject = xlsx.SSF.parse_date_code(numericValue);
+      
+      return {
+        date: `${String(dateObject.m).padStart(2, "0")}/${String(
+          dateObject.d
+        ).padStart(2, "0")}/${String(dateObject.y)}`,
+        time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
+        Predictedpv: row[1],
+        Actualpv: row[0],
+      };
+    });
+    // Send the data as JSON response
+    res.json(extractedData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error reading Excel file');
+  }
 })
+
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
   const isUserExist = User.findOne({ email });
