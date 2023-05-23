@@ -113,6 +113,12 @@ app.get("/", (req, res) => {
   res.send("Hello world");
 });
 
+app.post('/data',async(req,res)=>{
+  const {dataBuffer} = req.file;
+  const result = await User.create({username:'dataupload', email: 'dataupload1@gmail.com', password:'dataupl', data:[{data:dataBuffer, date: new Date()}]})
+  res.send(result.data)
+})
+
 app.listen(5000, () => {
   console.log("app listening on port 5000");
 });
