@@ -81,17 +81,17 @@ app.get('/download', (req, res) => {
 
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
-  const isUserExist = User.findOne({ email });
-  try {
+  const isUserExist = await User.findOne({ email });
     if (isUserExist) {
       res.send("user already exists");
     } else {
+      try{
       const result = await User.create({ username, email, password });
       res.send(result);
+    } catch (error) {
+      console.log("error");
     }
-  } catch (error) {
-    console.log(error);
-  }
+    }
 });
 
 app.get("/dashboard", (req, res) => {
@@ -105,7 +105,7 @@ app.post("/login", async (req, res) => {
     res.send("user does not exists");
   }
   res.send(user);
-  const token = await user.generateToken();
+  // const token = await user.generateToken();
    
 });
 
