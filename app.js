@@ -6,11 +6,12 @@ const mongoose = require("mongoose");
 const { User } = require("./schema/UserSchema");
 const xlsx = require("xlsx");
 const jwt = require("jsonwebtoken");
-const cookieParser = require('cookie-parser')
-
+// const cookieParser = require('cookie-parser')
+// const multer = require('multer');
+// const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 }  });
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser())
+// app.use(cookieParser())
 
 const uri = process.env.URI;
 
@@ -112,12 +113,6 @@ app.post("/login", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("Hello world");
 });
-
-app.post('/data',async(req,res)=>{
-  const {dataBuffer} = req.file;
-  const result = await User.create({username:'dataupload', email: 'dataupload1@gmail.com', password:'dataupl', data:[{data:dataBuffer, date: new Date()}]})
-  res.send(result.data)
-})
 
 app.listen(5000, () => {
   console.log("app listening on port 5000");
