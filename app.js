@@ -22,21 +22,18 @@ mongoose
     console.log("connected!");
   });
 
-  const authenticate = async(req,res,next)=>{
-    try {
-      // const token = req.cookies.token;
-      // console.log("cokie",req.cookies);
-      const verify = jwt.verify(token, process.env.SECRET)
-      const user = await User.findOne({_id:verify, "tokens.token":token});
-      if(!user) { throw new Error('user not found') }
-      req.user = user;
-      req.token = token;
+  const authenticate = (req,res,next)=>{
+    const authHeader = req.headers['auth'];
+      const token = authHeader && authHeader.split(' ')[1]
+      if(token === null) return res.sendStatus(401);
 
-      next();
-    } catch (error) {
-      console.log(error);
-    }
+      jwt.verify(token,process.env.SECRET,(err,userID)=>{
+        if(err) return res.sendStatus(403)
+        req.userID = userID;
+        next()
+      })
   }
+
 app.get('/forecast',(req,res)=>{
   const filePath = 'C:\\Users\\Hp\\Downloads\\test.xlsx'; // Update with the actual file path
 
@@ -95,19 +92,25 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-app.get("/dashboard", (req, res) => {
-  res.send('hi');
+app.get("/dashboard",authenticate, async(req, res) => {
+  const userID = req.userID;
+  const user = await User.findById(userID)
+  res.send(user);
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login",async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email, password });
+  try {
+    const user = await User.findOne({ email, password });
   if (!user) {
     res.send("user does not exists");
   }
+  const token = await user.generateToken();
+  // res.setHeader('auth', `Bearer ${token}`)
   res.send(user);
-  // const token = await user.generateToken();
-   
+  } catch (error) {
+    console.log('error');
+  }
 });
 
 app.get("/", (req, res) => {
