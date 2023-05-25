@@ -19,11 +19,11 @@ app.use(
   })
 )
 
-app.use((req,res,next)=>{
-  if(req.session.email === undefined) res.sendStatus(401)
-  else res.sendStatus(200)
-  next()
-})
+// app.use((req,res,next)=>{
+//   if(req.session.email === undefined) res.sendStatus(401)
+//   else res.sendStatus(200)
+//   next()
+// })
 
 const uri = process.env.URI;
 
