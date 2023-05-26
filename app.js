@@ -19,12 +19,6 @@ app.use(
   })
 )
 
-// app.use((req,res,next)=>{
-//   if(req.session.email === undefined) res.sendStatus(401)
-//   else res.sendStatus(200)
-//   next()
-// })
-
 const uri = process.env.URI;
 
 mongoose.set("strictQuery", false);
@@ -33,18 +27,6 @@ mongoose
   .then(() => {
     console.log("connected!");
   });
-
-// const authenticate = (req, res, next) => {
-//   const token = req.cookie.token;
-//   if (token === null) return res.sendStatus(401);
-
-//   jwt.verify(token, process.env.SECRET, (err, userID) => {
-//     if (err) return res.sendStatus(403);
-//     req.userID = userID;
-//     next();
-//   });
-//   console.log("token", token);
-// };
 
 app.get('/logout',(req,res)=>{
   req.session.destroy(()=>{
@@ -80,9 +62,14 @@ app.post("/signup", async (req, res) => {
 });
 
 app.get("/dashboard",async(req, res) => {
+  if(req.session.email !== undefined){
   const email = req.session.email;
   const user = await User.findOne({email})
-  res.send(user);
+  res.send(user)}
+
+  else{
+    res.sendStatus(401);
+  }
 });
 
 app.post("/login", async (req, res) => {
