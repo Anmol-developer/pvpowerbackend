@@ -3,6 +3,8 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require("bcrypt");
 const { User } = require("./schema/UserSchema");
+const xlsx = require('xlsx')
+const path = require('path')
 
 
 router.get("/logout", (req, res) => {
@@ -74,6 +76,35 @@ router.get("/logout", (req, res) => {
       console.log("error: ", error);
     }
   });
+
+  router.get('/forecast',(req,res)=>{
+    const filePath = 'C:\\Users\\Hp\\Downloads\\test.xlsx'; // Update with the actual file path
+    try {
+      const workbook = xlsx.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+      const extractedData = jsonData.slice(1).map((row) => {
+        const numericValue = parseFloat(row[3]);
+        const dateObject = xlsx.SSF.parse_date_code(numericValue);
+        
+        return {
+          date: `${String(dateObject.m).padStart(2, "0")}/${String(
+            dateObject.d
+          ).padStart(2, "0")}/${String(dateObject.y)}`,
+          time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
+          Predictedpv: row[2],
+          // Actualpv: row[1],
+        };
+      });
+      // Send the data as JSON response
+      res.json(extractedData);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send('Error reading Excel file');
+    }
+  })
+  
   
   router.get("/", (req, res) => {
     res.send("Hello world");
