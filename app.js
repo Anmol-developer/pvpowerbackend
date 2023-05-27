@@ -56,11 +56,11 @@ app.post("/signup", async (req, res) => {
     res.send("user already exists");
   } else {
     try {
-      bcrypt.hash(password, process.env.SALT_ROUNDS, async (err, hash) => {
+      bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS), async (err, hash) => {
         // Store hash in your password DB.
         if (err) console.log("hash err: ", err);
         else {
-          const result = await User.create({ username, email, hash });
+          const result = await User.create({ username, email, password: hash });
           res.send(result);
         }
       });
