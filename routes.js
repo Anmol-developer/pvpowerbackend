@@ -57,6 +57,7 @@ router.get("/download", (req, res) => {
 router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
   const verificationCode = req.session.verificationCode;
+  console.log(verificationCode);
   const isUserExist = await User.findOne({ email });
   if (isUserExist) {
     res.send("user already exists");
@@ -76,7 +77,6 @@ router.post("/signup", async (req, res) => {
                 email,
                 password: hash,
               });
-              req.session.email = email;
               res.send(result);
             }
           }
@@ -155,6 +155,8 @@ router.post("/verify-email", async (req, res) => {
   sendVerificationEmail(email, verificationCode);
   // console.log('email sent');
   req.session.verificationCode = verificationCode;
+  req.session.email = email;
+              
   res.sendStatus(200);
 });
 
