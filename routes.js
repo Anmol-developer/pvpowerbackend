@@ -58,12 +58,7 @@ router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
   const verificationCode = req.session.verificationCode;
   console.log(verificationCode);
-  const isUserExist = await User.findOne({ email });
-  if (isUserExist) {
-    res.send("user already exists");
-  } 
-  else if (parseInt(verificationCode) === parseInt(verifyCode)) {
-    // res.sendStatus(500)
+  if (parseInt(verificationCode) === parseInt(verifyCode)) {
     try {
       bcrypt.hash(
         password,
@@ -72,20 +67,18 @@ router.post("/signup", async (req, res) => {
           // Store hash in your password DB.
           if (err) console.log("hash err: ", err);
           else {
-              const result = await User.create({
-                username,
-                email,
-                password: hash,
-              });
-              res.send(result);
-            }
+            const result = await User.create({
+              username,
+              email,
+              password: hash,
+            });
+            res.send(result);
           }
+        }
       );
     } catch (error) {
       console.log("error");
     }
-  }else{
-    res.send('code not equal')
   }
 });
 
@@ -105,7 +98,7 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      res.send("user does not exists");
+      res.sendStatus(409);
     } else {
       bcrypt.compare(password, user.password, async (err, result) => {
         if (err) console.log("hash compare err: ", err);
@@ -151,13 +144,18 @@ router.get("/forecast", (req, res) => {
 
 router.post("/verify-email", async (req, res) => {
   const { email } = req.body;
-  const verificationCode = generateVerificationCode();
-  sendVerificationEmail(email, verificationCode);
-  // console.log('email sent');
-  req.session.verificationCode = verificationCode;
-  req.session.email = email;
-              
-  res.sendStatus(200);
+  const isUserExist = await User.findOne({ email });
+  if (!isUserExist) {
+    const verificationCode = generateVerificationCode();
+    sendVerificationEmail(email, verificationCode);
+    // console.log('email sent');
+    req.session.verificationCode = verificationCode;
+    req.session.email = email;
+
+    res.sendStatus(200);
+  }else{
+    res.sendStatus(409)
+  }
 });
 
 router.get("/", (req, res) => {
