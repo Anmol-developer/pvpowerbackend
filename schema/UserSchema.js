@@ -15,7 +15,12 @@ const UserSchema = new Schema({
   //     token: { type: String, required: true },
   //   },
   // ],
-  isCalcDone: {type:Boolean, default:false}
+  isCalcDone: {type:Boolean, default:false},
+  phone: {type: Number, default: 123456789},
+  address: {type: String, default:"Civil Lines, IIT Roorkee, India"},
+  zipCode: {type:Number, default:123465},
+  designation: {type: String, default:"Product Manager"}
+
 });
 
 //generating jwt token

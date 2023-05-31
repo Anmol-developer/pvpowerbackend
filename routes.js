@@ -5,6 +5,9 @@ const bcrypt = require("bcrypt");
 const { User } = require("./schema/UserSchema");
 const xlsx = require("xlsx");
 const nodemailer = require("nodemailer");
+const accountSid = process.env.TWILIO_SID;
+const authToken = process.env.TWILIO_TOKEN;
+const client = require("twilio")(accountSid, authToken);
 
 const generateVerificationCode = () => {
   //generating a 4 digit code
@@ -106,7 +109,7 @@ router.post("/login", async (req, res) => {
           // const token = await user.generateToken();
           req.session.email = user.email;
           res.send(user);
-        }else{
+        } else {
           res.sendStatus(409);
         }
       });
@@ -155,8 +158,57 @@ router.post("/verify-email", async (req, res) => {
     req.session.email = email;
 
     res.sendStatus(200);
+  } else {
+    res.sendStatus(409);
+  }
+});
+
+router.get("/send-sms", (req, res) => {
+  const verificationCode = generateVerificationCode();
+  try {
+    client.messages
+      .create({
+        body: `Hi! your verification code is ${verificationCode}`,
+        from: "+14253411821",
+        to: "+916378452737",
+      })
+      .then((message) => console.log(message.sid));
+    req.session.phoneVerificationCode = verificationCode;
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post("/edit/:userID", async (req, res) => {
+  const userID = req.params.userID;
+  const {verifyCode,username, email, address, designation, phone, zipCode} = req.body;
+  const phoneVerificationCode = req.session.phoneVerificationCode;
+  const updateData = {
+    username,
+    email,
+    address,
+    designation,
+    phone,
+    zipCode
+  }
+  if(parseInt(verifyCode) === parseInt(phoneVerificationCode)){
+    try {
+      const updatedUser = await User.findByIdAndUpdate(userID, updateData, {
+        new: true, // Returns the updated document
+      });
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      res.json(updatedUser);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
   }else{
-    res.sendStatus(409)
+    res.status(409).send("Invalid code");
   }
 });
 
