@@ -106,6 +106,8 @@ router.post("/login", async (req, res) => {
           // const token = await user.generateToken();
           req.session.email = user.email;
           res.send(user);
+        }else{
+          res.sendStatus(409);
         }
       });
     }
