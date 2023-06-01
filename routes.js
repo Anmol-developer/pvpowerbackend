@@ -185,27 +185,23 @@ router.get("/send-sms", (req, res) => {
 
 router.post("/edit/:userID", async (req, res) => {
   const userID = req.params.userID;
-  const {verifyCode,username, email, address, designation, phone, zipcode} = req.body;
+  const {verifyCode,username, email, address, designation, phone, zipCode} = req.body;
   // const phoneVerificationCode = req.session.phoneVerificationCode;
   // console.log(verifyCode, PverificationCode[0]);
-  const updateData = {
-    username,
-    email,
-    address,
-    designation,
-    phone,
-    zipCode:zipcode
-  }
   if(parseInt(verifyCode) === parseInt(PverificationCode[0])){
     try {
-      const updatedUser = await User.findByIdAndUpdate(userID, updateData, {
-        new: true, // Returns the updated document
-      });
+      const updatedUser = await User.findByIdAndUpdate(userID, {
+        username,
+        email,
+        address,
+        designation,
+        phone,
+        zipCode
+      }, {new:true});
   
       if (!updatedUser) {
         return res.status(404).json({ error: 'User not found' });
       }
-  
       res.send(updatedUser);
     } catch (error) {
       console.error(error);
