@@ -9,6 +9,8 @@ const accountSid = process.env.TWILIO_SID;
 const authToken = process.env.TWILIO_TOKEN;
 const client = require("twilio")(accountSid, authToken);
 
+const PverificationCode = []
+
 const generateVerificationCode = () => {
   //generating a 4 digit code
   const code = Math.floor(1000 + Math.random() * 9000);
@@ -164,12 +166,13 @@ router.post("/verify-email", async (req, res) => {
 });
 
 router.get("/send-sms", (req, res) => {
-  const PverificationCode = generateVerificationCode();
-  req.session.phoneVerificationCode = PverificationCode;
+  const PCode = generateVerificationCode();
+  // req.session.phoneVerificationCode = PverificationCode;
+  PverificationCode[0]=PCode
   try {
     client.messages
       .create({
-        body: `Hi! your verification code is ${PverificationCode}`,
+        body: `Hi! your verification code is ${PCode}`,
         from: "+14253411821",
         to: "+916378452737",
       })
@@ -183,8 +186,8 @@ router.get("/send-sms", (req, res) => {
 router.post("/edit/:userID", async (req, res) => {
   const userID = req.params.userID;
   const {verifyCode,username, email, address, designation, phone, zipcode} = req.body;
-  const phoneVerificationCode = req.session.phoneVerificationCode;
-  console.log(verifyCode, phoneVerificationCode);
+  // const phoneVerificationCode = req.session.phoneVerificationCode;
+  // console.log(verifyCode, PverificationCode[0]);
   const updateData = {
     username,
     email,
@@ -193,7 +196,7 @@ router.post("/edit/:userID", async (req, res) => {
     phone,
     zipCode:zipcode
   }
-  if(parseInt(verifyCode) === parseInt(phoneVerificationCode)){
+  if(parseInt(verifyCode) === parseInt(PverificationCode[0])){
     try {
       const updatedUser = await User.findByIdAndUpdate(userID, updateData, {
         new: true, // Returns the updated document
@@ -203,7 +206,7 @@ router.post("/edit/:userID", async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
   
-      res.json(updatedUser);
+      res.send(updatedUser);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Server error' });

@@ -7,7 +7,10 @@ const session = require("express-session");
 const helmet = require("helmet");
 const routes = require('./routes.js');
 
-app.use(cors());
+app.use(cors({
+  origin:"*",
+  credentials:true
+}));
 app.use(helmet());
 app.use(express.json());
 
@@ -15,7 +18,7 @@ app.use(
   session({
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
   })
 );
 
