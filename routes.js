@@ -60,7 +60,7 @@ router.get("/download", (req, res) => {
 router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
   const verificationCode = req.session.verificationCode;
-  console.log(verificationCode);
+  // console.log(verificationCode);
   if (parseInt(verificationCode) === parseInt(verifyCode)) {
     try {
       bcrypt.hash(
@@ -164,16 +164,16 @@ router.post("/verify-email", async (req, res) => {
 });
 
 router.get("/send-sms", (req, res) => {
-  const verificationCode = generateVerificationCode();
+  const PverificationCode = generateVerificationCode();
+  req.session.phoneVerificationCode = PverificationCode;
   try {
     client.messages
       .create({
-        body: `Hi! your verification code is ${verificationCode}`,
+        body: `Hi! your verification code is ${PverificationCode}`,
         from: "+14253411821",
         to: "+916378452737",
       })
       .then((message) => console.log(message.sid));
-    req.session.phoneVerificationCode = verificationCode;
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
@@ -182,15 +182,16 @@ router.get("/send-sms", (req, res) => {
 
 router.post("/edit/:userID", async (req, res) => {
   const userID = req.params.userID;
-  const {verifyCode,username, email, address, designation, phone, zipCode} = req.body;
+  const {verifyCode,username, email, address, designation, phone, zipcode} = req.body;
   const phoneVerificationCode = req.session.phoneVerificationCode;
+  console.log(verifyCode, phoneVerificationCode);
   const updateData = {
     username,
     email,
     address,
     designation,
     phone,
-    zipCode
+    zipCode:zipcode
   }
   if(parseInt(verifyCode) === parseInt(phoneVerificationCode)){
     try {
