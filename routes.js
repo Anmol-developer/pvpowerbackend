@@ -9,7 +9,7 @@ const accountSid = process.env.TWILIO_SID;
 const authToken = process.env.TWILIO_TOKEN;
 const client = require("twilio")(accountSid, authToken);
 
-const PverificationCode = []
+const PverificationCode = [];
 
 const generateVerificationCode = () => {
   //generating a 4 digit code
@@ -36,8 +36,30 @@ const sendVerificationEmail = (email, verificationCode) => {
   transporter.sendMail(mailOpt, (err, info) => {
     if (err) console.log("mail err: ", err);
     else {
-      console.log("Verification email sent:", info.response);
+      console.log("sent!");
     }
+  });
+};
+
+const sendResetPassword = (email, userID) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: `${process.env.MY_EMAIL}`,
+      pass: `${process.env.MY_PASS}`,
+    },
+  });
+
+  const mailOpt = {
+    from: `${process.env.MY_EMAIL}`,
+    to: email,
+    subject: "Reset Password - PVcast",
+    text: `Your reset password reset link is http://localhost:${process.env.PORT}/reset-password/${userID}`,
+  };
+
+  transporter.sendMail(mailOpt, (err, info) => {
+    if (err) console.log("mail err: ", err);
+    else console.log("sent!");
   });
 };
 
@@ -62,7 +84,6 @@ router.get("/download", (req, res) => {
 router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
   const verificationCode = req.session.verificationCode;
-  // console.log(verificationCode);
   if (parseInt(verificationCode) === parseInt(verifyCode)) {
     try {
       bcrypt.hash(
@@ -88,7 +109,6 @@ router.post("/signup", async (req, res) => {
 });
 
 router.get("/dashboard", async (req, res) => {
-  // console.log(req.session.email);
   if (req.session.email !== undefined) {
     const email = req.session.email;
     const user = await User.findOne({ email });
@@ -108,7 +128,6 @@ router.post("/login", async (req, res) => {
       bcrypt.compare(password, user.password, async (err, result) => {
         if (err) console.log("hash compare err: ", err);
         if (result) {
-          // const token = await user.generateToken();
           req.session.email = user.email;
           res.send(user);
         } else {
@@ -167,16 +186,14 @@ router.post("/verify-email", async (req, res) => {
 
 router.get("/send-sms", (req, res) => {
   const PCode = generateVerificationCode();
-  // req.session.phoneVerificationCode = PverificationCode;
-  PverificationCode[0]=PCode
+  PverificationCode[0] = PCode;
   try {
-    client.messages
-      .create({
-        body: `Hi! your verification code is ${PCode}`,
-        from: "+14253411821",
-        to: "+916378452737",
-      })
-      .then((message) => console.log(message.sid));
+    client.messages.create({
+      body: `Hi! your verification code is ${PCode}`,
+      from: "+14253411821",
+      to: "+916378452737",
+    });
+
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
@@ -185,30 +202,60 @@ router.get("/send-sms", (req, res) => {
 
 router.post("/edit/:userID", async (req, res) => {
   const userID = req.params.userID;
-  const {verifyCode,username, email, address, designation, phone, zipCode} = req.body;
-  // const phoneVerificationCode = req.session.phoneVerificationCode;
-  // console.log(verifyCode, PverificationCode[0]);
-  if(parseInt(verifyCode) === parseInt(PverificationCode[0])){
+  const { verifyCode, username, email, address, designation, phone, zipCode } =
+    req.body;
+  if (parseInt(verifyCode) === parseInt(PverificationCode[0])) {
     try {
-      const updatedUser = await User.findByIdAndUpdate(userID, {
-        username,
-        email,
-        address,
-        designation,
-        phone,
-        zipCode
-      }, {new:true});
-  
+      const updatedUser = await User.findByIdAndUpdate(
+        userID,
+        {
+          username,
+          email,
+          address,
+          designation,
+          phone,
+          zipCode,
+        },
+        { new: true }
+      );
+
       if (!updatedUser) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: "User not found" });
       }
       res.send(updatedUser);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: "Server error" });
     }
-  }else{
+  } else {
     res.status(409).send("Invalid code");
+  }
+});
+
+router.post("/send-reset-password", async (req, res) => {
+  const { email } = req.body;
+  const isUserExist = await User.findOne({ email });
+  if (isUserExist) {
+    sendResetPassword(email, isUserExist._id);
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(409);
+  }
+});
+
+router.put("/resetP/:userId", async (req, res) => {
+  const {userId} = req.params;
+  const { password } = req.body;
+  try {
+    const update = await User.findByIdAndUpdate(
+      userId,
+      { password },
+      { new: true }
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(401);
+    console.log(err);
   }
 });
 
