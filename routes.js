@@ -63,6 +63,28 @@ const sendResetPassword = (email, userID) => {
   });
 };
 
+const sendQueryMail = (name, email,subject, query)=>{
+  const transporter = nodemailer.createTransport({
+    service:"gmail",
+    auth:{
+      user:`${process.env.MY_EMAIL}`,
+      pass: `${process.env.MY_PASS}`
+    }
+  })
+
+  const mailOpt = {
+    from: email,
+    to: `${process.env.MY_EMAIL}`,
+    subject: `Query from ${name}: ${subject}`,
+    text: `${query}`
+  }
+
+  transporter.sendMail(mailOpt,(err, info)=>{
+    if(err) console.log(err);
+    else console.log(info.response.split(' ')[2]);
+  })
+}
+
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.sendStatus(200);
@@ -258,6 +280,16 @@ router.put("/resetP/:userId", async (req, res) => {
     console.log(err);
   }
 });
+
+router.post('/query',(req,res)=>{
+  const {name, email, subject, query} = req.body;
+  try {
+    sendQueryMail(name,email,subject,query);
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 router.get("/", (req, res) => {
   res.send("Hello world");
