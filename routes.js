@@ -85,6 +85,28 @@ const sendQueryMail = (name, email,subject, query)=>{
   })
 }
 
+const sendCalcMail = (email) =>{
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: `${process.env.MY_EMAIL}`,
+      pass: `${process.env.MY_PASS}`
+    }
+  })
+
+  const mailOpt = {
+    from: `${process.env.MY_EMAIL}`,
+    to: email,
+    subject: 'Your Forecast calculation is done!',
+    text: 'Your Forecast calculation is done. You can check it out on the website.'
+  }
+
+  transporter.sendMail(mailOpt, (err, info)=>{
+    if(err) console.log(err);
+    else console.log(info.response.split(' ')[2]);
+  })
+}
+
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.sendStatus(200);
@@ -269,17 +291,38 @@ router.put("/resetP/:userId", async (req, res) => {
   const {userId} = req.params;
   const { password } = req.body;
   try {
-    const update = await User.findByIdAndUpdate(
-      userId,
-      { password },
-      { new: true }
+    bcrypt.hash(
+      password,
+      parseInt(process.env.SALT_ROUNDS),
+      async (err, hash) => {
+        // Store hash in your password DB.
+        if (err) console.log("hash err: ", err);
+        else {
+          const update = await User.findByIdAndUpdate(
+            userId,
+            { password: hash },
+            { new: true }
+          );
+        }
+      }
     );
+    
     res.sendStatus(200);
   } catch (err) {
     res.sendStatus(401);
     console.log(err);
   }
 });
+
+router.post('/send-calc-mail', (req,res)=>{
+  const {email} = req.body;
+  try {
+    sendCalcMail(email)
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 router.post('/query',(req,res)=>{
   const {name, email, subject, query} = req.body;
