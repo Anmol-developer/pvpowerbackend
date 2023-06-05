@@ -234,8 +234,8 @@ router.get("/send-sms", (req, res) => {
   try {
     client.messages.create({
       body: `Hi! your verification code is ${PCode}`,
-      from: "+14253411821",
-      to: "+916378452737",
+      from: `${process.env.TWILIO_NO}`,
+      to: `${process.env.TWILIO_VERIFIED_NO}`,
     });
 
     res.sendStatus(200);
