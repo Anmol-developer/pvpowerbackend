@@ -8,6 +8,7 @@ const nodemailer = require("nodemailer");
 const accountSid = process.env.TWILIO_SID;
 const authToken = process.env.TWILIO_TOKEN;
 const client = require("twilio")(accountSid, authToken);
+// const passport = require('passport')
 
 const PverificationCode = [];
 
@@ -108,9 +109,12 @@ const sendCalcMail = (email) =>{
 }
 
 router.get("/logout", (req, res) => {
+  // req.logOut();
   req.session.destroy(() => {
     res.sendStatus(200);
   });
+  //tutorial added redirect to process.env.CLIENT_URL
+  // res.redirect('http://localhost:3000/')
 });
 
 // Endpoint to download the Excel file
@@ -333,6 +337,39 @@ router.post('/query',(req,res)=>{
     console.log(error);
   }
 })
+
+// router.get('/login/success',(req,res)=>{
+//   if(req.user){
+//     res.status(200).json({
+//       error:false,
+//       message:"Login success!",
+//       user: req.user
+//     })
+//   }else{
+//     res.status(403).json({
+//       error:true,
+//       message: "UnAuthorized"
+//     })
+//   }
+// })
+
+// router.get('/login/failure',(req,res)=>{
+//   res.status(401).json({
+//     error: true,
+//     message:"Login failed!"
+//   })
+// })
+
+// router.get('/google',(req,res)=>{
+//   passport.authenticate('google',["profile","email"])
+// })
+
+// router.get('/google/callback',(req,res)=>{
+//   passport.authenticate('google', {
+//     failureRedirect:'/login/failed',
+//     successRedirect:'http://localhost:3000/'  //tutorial added process.env.client -- check later
+//   });
+// })
 
 router.get("/", (req, res) => {
   res.send("Hello world");

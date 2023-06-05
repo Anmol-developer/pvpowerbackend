@@ -6,8 +6,21 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const helmet = require("helmet");
 const routes = require('./routes.js');
+// const passport = require('passport')
+// const GoogleAuth = require('./GoogleAuth.js')
+// const cookieSession = require('cookie-session')
+
+// app.use(cookieSession({
+//   keys: [`${process.env.SECRET}`],
+//   name: "session",
+//   maxAge: 24*60*60*100
+// }))
+
+// app.use(passport.initialize())
+// app.use(passport.session())
 
 app.use(cors({
+  // origin:"http://localhost:3000",
   origin:"*",
   credentials:true
 }));
