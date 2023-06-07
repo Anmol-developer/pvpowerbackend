@@ -187,7 +187,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/forecast", (req, res) => {
+router.get("/forecast/:userId", async(req, res) => {
+  const {userId} = req.params;
   const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // Update with the actual file path
   const filePath2 = "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"
   try {
@@ -222,9 +223,13 @@ router.get("/forecast", (req, res) => {
       const Predictedpv = jsonData2[index];
       data[index] = {...extractedData[index], Predictedpv:Predictedpv[0] }
     }
+    const updateData = await User.findByIdAndUpdate(userId, {PredictedData: [{data}]},{new:true})
+    res.json(data);
     // Send the data as JSON response
     // res.json(extractedData);
-    res.json(data);
+    // const Pdata = {$push:{date: new Date(), data: data}}
+    console.log(updateData);
+    // console.log(userId);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error reading Excel file");
@@ -353,9 +358,25 @@ router.post('/query',(req,res)=>{
   }
 })
 
-// router.get('/api/express/testing', (req,res)=>{
-//   res.json({message:"Listened!"})
-// })
+router.get('/history/:userId', async(req,res)=>{
+  const {userId} = req.params;
+  try {
+    const history = await User.findById(userId);
+    res.status(200).send(history.PredictedData)  
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+router.delete('/delete/:userId', async(req,res)=>{
+  const {userId} = req.params;
+  try {
+    const deleteData = await User.findByIdAndUpdate(userId, {PredictedData: []}, {new:true}); 
+    res.status(200).send(deleteData.PredictedData);
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 router.get("/", (req, res) => {
   res.send("Hello world");

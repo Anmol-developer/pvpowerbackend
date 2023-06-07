@@ -1,15 +1,21 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 
 const UserSchema = new Schema({
   username: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   isCustomer: { type: Boolean, default: true },
-  data: [{ date: Date, data: Buffer }],
-  PredictedData: [{ date: Date, data: Buffer }],
+  data: [{ date: {
+    type: Date,
+    default: Date.now // Sets the default value to the current date and time
+  }, data: Buffer }],
+  PredictedData: [{ date: {
+    type: Date,
+    default: Date.now // Sets the default value to the current date and time
+  }, data: Buffer }],
   // tokens: [
   //   {
   //     token: { type: String, required: true },
