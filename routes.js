@@ -118,7 +118,7 @@ router.get("/logout", (req, res) => {
 
 // Endpoint to download the Excel file
 router.get("/download", (req, res) => {
-  const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // Update with the actual file path
+  const filePath = "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"; // Update with the actual file path
 
   res.download(filePath, (err) => {
     if (err) {
@@ -189,11 +189,20 @@ router.post("/login", async (req, res) => {
 
 router.get("/forecast", (req, res) => {
   const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // Update with the actual file path
+  const filePath2 = "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"
   try {
     const workbook = xlsx.readFile(filePath);
+    const workbook2 = xlsx.readFile(filePath2);
+
     const sheetName = workbook.SheetNames[0];
+    const sheetName2 = workbook2.SheetNames[0];
+
     const worksheet = workbook.Sheets[sheetName];
+    const worksheet2 = workbook2.Sheets[sheetName2];
+
     const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+    const jsonData2 = xlsx.utils.sheet_to_json(worksheet2);
+    
     const extractedData = jsonData.slice(1).map((row) => {
       const numericValue = parseFloat(row[3]);
       const dateObject = xlsx.SSF.parse_date_code(numericValue);
@@ -203,12 +212,19 @@ router.get("/forecast", (req, res) => {
           dateObject.d
         ).padStart(2, "0")}/${String(dateObject.y)}`,
         time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
-        Predictedpv: row[2],
+        // Predictedpv: row[2],
         // Actualpv: row[1],
       };
     });
+
+    const data = [];
+    for (let index = 0; index < jsonData.length-1; index++) {
+      const Predictedpv = jsonData2[index];
+      data[index] = {...extractedData[index], Predictedpv:Predictedpv[0] }
+    }
     // Send the data as JSON response
-    res.json(extractedData);
+    // res.json(extractedData);
+    res.json(data);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error reading Excel file");
