@@ -16,7 +16,7 @@ app.use(
 );
 
 app.use(cors({
-  origin:"http://localhost:3000",
+  origin:`${process.env.CLIENT_URL}`,
   credentials:true
 }));
 app.use(helmet());
@@ -34,6 +34,6 @@ mongoose
 // Use the routes middleware
 app.use('/', routes);
 
-app.listen(8080, () => {
-  console.log("app listening on port 5000");
+app.listen(process.env.PORT, () => {
+  console.log("app listening!");
 });
