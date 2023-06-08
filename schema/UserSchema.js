@@ -15,13 +15,17 @@ const UserSchema = new Schema({
   PredictedData: [{ date: {
     type: Date,
     default: Date.now // Sets the default value to the current date and time
-  }, data: Buffer }],
+  }, data: [{
+    date: {type: Date},
+    time: {type: String},
+    PredictedPV: {type: Number}
+  }] }],
   // tokens: [
   //   {
   //     token: { type: String, required: true },
   //   },
   // ],
-  isCalcDone: {type:Boolean, default:false},
+  // isCalcDone: {type:Boolean, default:false},
   phone: {type: Number, default: 123456789},
   address: {type: String, default:"Civil Lines, IIT Roorkee, India"},
   zipCode: {type:Number, default:123465},

@@ -221,20 +221,33 @@ router.get("/forecast/:userId", async(req, res) => {
     const data = [];
     for (let index = 0; index < jsonData.length-1; index++) {
       const Predictedpv = jsonData2[index];
-      data[index] = {...extractedData[index], Predictedpv:Predictedpv[0] }
+      data[index] = {...extractedData[index], PredictedPV:Predictedpv[0] }
     }
-    const updateData = await User.findByIdAndUpdate(userId, {PredictedData: [{data}]},{new:true})
-    res.json(data);
-    // Send the data as JSON response
-    // res.json(extractedData);
-    // const Pdata = {$push:{date: new Date(), data: data}}
-    console.log(updateData);
-    // console.log(userId);
+    const updateData = await User.findById(userId);
+    if (!updateData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    updateData.PredictedData.push({date: new Date() ,data})
+    await updateData.save();
+    
+    // Send status 200
+    res.sendStatus(200);
+
   } catch (error) {
     console.log(error);
     res.status(500).send("Error reading Excel file");
   }
 });
+
+router.get('/forecast/data/:userId', async(req,res)=>{
+  const {userId} = req.params;
+  try {
+    const data = await User.findById(userId);
+    res.send(data.PredictedData);
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 router.post("/verify-email", async (req, res) => {
   const { email } = req.body;
@@ -370,8 +383,11 @@ router.get('/history/:userId', async(req,res)=>{
 
 router.delete('/delete/:userId', async(req,res)=>{
   const {userId} = req.params;
+  const {data} = req.query;
   try {
-    const deleteData = await User.findByIdAndUpdate(userId, {PredictedData: []}, {new:true}); 
+    const deleteData = await User.findById(userId);
+    deleteData.PredictedData = deleteData.PredictedData.filter((elem)=> elem._id.toString() !== data)
+    await deleteData.save() 
     res.status(200).send(deleteData.PredictedData);
   } catch (error) {
     console.log(error);
