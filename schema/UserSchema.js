@@ -8,29 +8,40 @@ const UserSchema = new Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   isCustomer: { type: Boolean, default: true },
-  data: [{ date: {
-    type: Date,
-    default: Date.now // Sets the default value to the current date and time
-  }, data: Buffer }],
-  PredictedData: [{ date: {
-    type: Date,
-    default: Date.now // Sets the default value to the current date and time
-  }, data: [{
-    date: {type: Date},
-    time: {type: String},
-    PredictedPV: {type: Number}
-  }] }],
+  data: [
+    {
+      date: {
+        type: Date,
+        default: Date.now, // Sets the default value to the current date and time
+      },
+      data: Buffer,
+    },
+  ],
+  PredictedData: [
+    {
+      date: {
+        type: Date,
+        default: Date.now, // Sets the default value to the current date and time
+      },
+      data: [
+        {
+          date: { type: Date },
+          time: { type: String },
+          PredictedPV: { type: Number }
+        },
+      ],
+    },
+  ],
   // tokens: [
   //   {
   //     token: { type: String, required: true },
   //   },
   // ],
   // isCalcDone: {type:Boolean, default:false},
-  phone: {type: Number, default: 123456789},
-  address: {type: String, default:"Civil Lines, IIT Roorkee, India"},
-  zipCode: {type:Number, default:123465},
-  designation: {type: String, default:"Product Manager"}
-
+  phone: { type: Number, default: 123456789 },
+  address: { type: String, default: "Civil Lines, IIT Roorkee, India" },
+  zipCode: { type: Number, default: 123465 },
+  designation: { type: String, default: "Product Manager" },
 });
 
 //generating jwt token

@@ -187,6 +187,16 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get('/validate/:userId', async(req,res)=>{
+  const {userId} = req.params;
+  try {
+    const data = await User.findById(userId);
+    res.status(200).send(data.PredictedData[data.PredictedData.length-1].data);
+  } catch (error) {
+    console.log(error);
+  }
+})
+
 router.get("/forecast/:userId", async(req, res) => {
   const {userId} = req.params;
   const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // Update with the actual file path
@@ -231,7 +241,7 @@ router.get("/forecast/:userId", async(req, res) => {
     await updateData.save();
     
     // Send status 200
-    res.sendStatus(200);
+    res.status(200).send(data);
 
   } catch (error) {
     console.log(error);
