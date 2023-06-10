@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const helmet = require("helmet");
 const routes = require('./routes.js');
+const cookieParser = require('cookie-parser')
+
+app.use(cookieParser());
 
 app.use(
   session({

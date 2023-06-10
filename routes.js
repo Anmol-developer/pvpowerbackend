@@ -1,4 +1,5 @@
 require("dotenv").config();
+const {sign, verify} = require('jsonwebtoken');
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
@@ -110,11 +111,12 @@ const sendCalcMail = (email) =>{
 router.get("/logout", (req, res) => {
   // req.logOut();
   req.session.destroy(() => {
-    res.sendStatus(200);
+    res.clearCookie('jsonwebtoken');
   });
+  res.sendStatus(200);
   //tutorial added redirect to process.env.CLIENT_URL
   // res.redirect('http://localhost:3000/')
-});
+});//ok
 
 // Endpoint to download the Excel file
 router.get("/download", (req, res) => {
@@ -126,11 +128,13 @@ router.get("/download", (req, res) => {
       res.status(500).send("Error downloading file");
     }
   });
-});
+}); //ok
 
 router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
   const verificationCode = req.session.verificationCode;
+  if(req.cookies.jsonwebtoken) res.clearCookie('jsonwebtoken');
+
   if (parseInt(verificationCode) === parseInt(verifyCode)) {
     try {
       bcrypt.hash(
@@ -145,6 +149,8 @@ router.post("/signup", async (req, res) => {
               email,
               password: hash,
             });
+            const jsonwebtoken = sign({userId: result._id}, `${process.env.SECRET}`,{expiresIn: '48h'})
+            res.cookie('jsonwebtoken',jsonwebtoken,{httpOnly:true});
             res.send(result);
           }
         }
@@ -153,20 +159,29 @@ router.post("/signup", async (req, res) => {
       console.log("error");
     }
   }
-});
+});//ok
 
 router.get("/dashboard", async (req, res) => {
-  if (req.session.email !== undefined) {
-    const email = req.session.email;
-    const user = await User.findOne({ email });
-    res.send(user);
+  if (req.cookies.jsonwebtoken !== undefined) {
+    const jsonwebtoken = req.cookies.jsonwebtoken;
+    verify(jsonwebtoken, `${process.env.SECRET}`, async (err,decoded)=>{
+      if(err){
+        console.log(err);
+        res.sendStatus(404)
+      }else{
+        const userId = decoded.userId
+        const user = await User.findById(userId);
+        return res.send(user);
+      }
+    })
   } else {
     res.sendStatus(401);
   }
-});
+});//ok
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  if(req.cookies.jsonwebtoken) res.clearCookie('jsonwebtoken');
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -175,7 +190,8 @@ router.post("/login", async (req, res) => {
       bcrypt.compare(password, user.password, async (err, result) => {
         if (err) console.log("hash compare err: ", err);
         if (result) {
-          req.session.email = user.email;
+          const jsonwebtoken = sign({userId: user._id}, `${process.env.SECRET}`,{expiresIn: '48h'})
+          res.cookie('jsonwebtoken',jsonwebtoken,{httpOnly:true});
           res.send(user);
         } else {
           res.sendStatus(409);
@@ -185,7 +201,7 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.log("error: ", error);
   }
-});
+});//ok
 
 router.get('/validate/:userId', async(req,res)=>{
   const {userId} = req.params;
@@ -195,7 +211,7 @@ router.get('/validate/:userId', async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-})
+})//ok for now
 
 router.get("/forecast/:userId", async(req, res) => {
   const {userId} = req.params;
@@ -247,7 +263,7 @@ router.get("/forecast/:userId", async(req, res) => {
     console.log(error);
     res.status(500).send("Error reading Excel file");
   }
-});
+});//ok for now
 
 router.get('/forecast/data/:userId', async(req,res)=>{
   const {userId} = req.params;
@@ -257,7 +273,7 @@ router.get('/forecast/data/:userId', async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-})
+})//ok for
 
 router.post("/verify-email", async (req, res) => {
   const { email } = req.body;
@@ -267,13 +283,13 @@ router.post("/verify-email", async (req, res) => {
     sendVerificationEmail(email, verificationCode);
     // console.log('email sent');
     req.session.verificationCode = verificationCode;
-    req.session.email = email;
+    // req.session.email = email;
 
     res.sendStatus(200);
   } else {
     res.sendStatus(409);
   }
-});
+});//ok
 
 router.get("/send-sms", (req, res) => {
   const PCode = generateVerificationCode();
@@ -289,7 +305,7 @@ router.get("/send-sms", (req, res) => {
   } catch (error) {
     console.log(error);
   }
-});
+});//ok for now
 
 router.post("/edit/:userID", async (req, res) => {
   const userID = req.params.userID;
@@ -321,7 +337,7 @@ router.post("/edit/:userID", async (req, res) => {
   } else {
     res.status(409).send("Invalid code");
   }
-});
+});//ok for now
 
 router.post("/send-reset-password", async (req, res) => {
   const { email } = req.body;
@@ -332,7 +348,7 @@ router.post("/send-reset-password", async (req, res) => {
   } else {
     res.sendStatus(409);
   }
-});
+});//ok for now
 
 router.put("/resetP/:userId", async (req, res) => {
   const {userId} = req.params;
@@ -359,7 +375,7 @@ router.put("/resetP/:userId", async (req, res) => {
     res.sendStatus(401);
     console.log(err);
   }
-});
+});//ok for now
 
 router.post('/send-calc-mail', (req,res)=>{
   const {email} = req.body;
@@ -369,7 +385,7 @@ router.post('/send-calc-mail', (req,res)=>{
   } catch (error) {
     console.log(error);
   }
-})
+})//ok for now
 
 router.post('/query',(req,res)=>{
   const {name, email, subject, query} = req.body;
@@ -379,7 +395,7 @@ router.post('/query',(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-})
+})//ok for now
 
 router.get('/history/:userId', async(req,res)=>{
   const {userId} = req.params;
@@ -389,7 +405,7 @@ router.get('/history/:userId', async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-})
+})//ok for now
 
 router.delete('/delete/:userId', async(req,res)=>{
   const {userId} = req.params;
@@ -402,10 +418,10 @@ router.delete('/delete/:userId', async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-})
+})//ok for now
 
 router.get("/", (req, res) => {
   res.send("Hello world");
-});
+});//ok for now
 
 module.exports = router;
