@@ -112,10 +112,8 @@ router.get("/logout", (req, res) => {
   // req.logOut();
   req.session.destroy(() => {
     res.clearCookie('jsonwebtoken');
+    res.sendStatus(200);
   });
-  res.sendStatus(200);
-  //tutorial added redirect to process.env.CLIENT_URL
-  // res.redirect('http://localhost:3000/')
 });//ok
 
 // Endpoint to download the Excel file
@@ -421,7 +419,21 @@ router.delete('/delete/:userId', async(req,res)=>{
 })//ok for now
 
 router.get("/", (req, res) => {
-  res.send("Hello world");
-});//ok for now
+  if(req.cookies.jsonwebtoken){
+    const token = req.cookies.jsonwebtoken;
+    verify(token, `${process.env.SECRET}`,async(err,decoded)=>{
+      if(err){
+        console.log(err);
+        res.sendStatus(404);
+      }else{
+        const userId = decoded.userId;
+        const user = await User.findById(userId)
+        res.status(200).send(user);
+      }
+    })
+  }else{
+    res.status(409)
+  }
+});//ok
 
 module.exports = router;
