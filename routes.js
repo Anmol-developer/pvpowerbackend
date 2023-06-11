@@ -213,6 +213,7 @@ router.get('/validate/:userId', async(req,res)=>{
 
 router.get("/forecast/:userId", async(req, res) => {
   const {userId} = req.params;
+  const {model} = req.query;
   const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // Update with the actual file path
   const filePath2 = "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"
   try {
@@ -251,7 +252,7 @@ router.get("/forecast/:userId", async(req, res) => {
     if (!updateData) {
       return res.status(404).json({ error: 'User not found' });
     }
-    updateData.PredictedData.push({date: new Date() ,data})
+    updateData.PredictedData.push({date: new Date() ,data, model})
     await updateData.save();
     
     // Send status 200

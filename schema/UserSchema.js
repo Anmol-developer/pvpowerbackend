@@ -30,6 +30,7 @@ const UserSchema = new Schema({
           PredictedPV: { type: Number }
         },
       ],
+      model: {type: String}
     },
   ],
   // tokens: [
