@@ -238,8 +238,6 @@ router.get("/forecast/:userId", async(req, res) => {
           dateObject.d
         ).padStart(2, "0")}/${String(dateObject.y)}`,
         time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
-        // Predictedpv: row[2],
-        // Actualpv: row[1],
       };
     });
 
