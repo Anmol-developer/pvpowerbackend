@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const helmet = require("helmet");
 const routes = require('./routes.js');
+const forecast = require('./forecast.js');
 const cookieParser = require('cookie-parser')
 
 app.use(cookieParser());
@@ -36,6 +37,7 @@ mongoose
 
 // Use the routes middleware
 app.use('/', routes);
+app.use('/forecast', forecast);
 
 app.listen(process.env.PORT, () => {
   console.log("app listening!");

@@ -1,16 +1,37 @@
 require("dotenv").config();
-const {sign, verify} = require('jsonwebtoken');
+const { sign, verify } = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { User } = require("./schema/UserSchema");
-const xlsx = require("xlsx");
 const nodemailer = require("nodemailer");
 const accountSid = process.env.TWILIO_SID;
 const authToken = process.env.TWILIO_TOKEN;
 const client = require("twilio")(accountSid, authToken);
 
 const PverificationCode = [];
+
+const sendCalcMail = (email) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: `${process.env.MY_EMAIL}`,
+      pass: `${process.env.MY_PASS}`,
+    },
+  });
+
+  const mailOpt = {
+    from: `${process.env.MY_EMAIL}`,
+    to: email,
+    subject: "Your Forecast calculation is done!",
+    text: "Your Forecast calculation is done. You can check it out on the website.",
+  };
+
+  transporter.sendMail(mailOpt, (err, info) => {
+    if (err) console.log(err);
+    else console.log(info.response.split(" ")[2]);
+  });
+};
 
 const generateVerificationCode = () => {
   //generating a 4 digit code
@@ -64,61 +85,40 @@ const sendResetPassword = (email, userID) => {
   });
 };
 
-const sendQueryMail = (name, email,subject, query)=>{
+const sendQueryMail = (name, email, subject, query) => {
   const transporter = nodemailer.createTransport({
-    service:"gmail",
-    auth:{
-      user:`${process.env.MY_EMAIL}`,
-      pass: `${process.env.MY_PASS}`
-    }
-  })
+    service: "gmail",
+    auth: {
+      user: `${process.env.MY_EMAIL}`,
+      pass: `${process.env.MY_PASS}`,
+    },
+  });
 
   const mailOpt = {
     from: email,
     to: `${process.env.MY_EMAIL}`,
     subject: `Query from ${name}: ${subject}`,
-    text: `${query}`
-  }
+    text: `${query}`,
+  };
 
-  transporter.sendMail(mailOpt,(err, info)=>{
-    if(err) console.log(err);
-    else console.log(info.response.split(' ')[2]);
-  })
-}
-
-const sendCalcMail = (email) =>{
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: `${process.env.MY_EMAIL}`,
-      pass: `${process.env.MY_PASS}`
-    }
-  })
-
-  const mailOpt = {
-    from: `${process.env.MY_EMAIL}`,
-    to: email,
-    subject: 'Your Forecast calculation is done!',
-    text: 'Your Forecast calculation is done. You can check it out on the website.'
-  }
-
-  transporter.sendMail(mailOpt, (err, info)=>{
-    if(err) console.log(err);
-    else console.log(info.response.split(' ')[2]);
-  })
-}
+  transporter.sendMail(mailOpt, (err, info) => {
+    if (err) console.log(err);
+    else console.log(info.response.split(" ")[2]);
+  });
+};
 
 router.get("/logout", (req, res) => {
   // req.logOut();
   req.session.destroy(() => {
-    res.clearCookie('jsonwebtoken');
+    res.clearCookie("jsonwebtoken");
     res.sendStatus(200);
   });
-});//ok
+}); //ok
 
 // Endpoint to download the Excel file
 router.get("/download", (req, res) => {
-  const filePath = "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"; // Update with the actual file path
+  const filePath =
+    "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"; // Update with the actual file path
 
   res.download(filePath, (err) => {
     if (err) {
@@ -131,7 +131,7 @@ router.get("/download", (req, res) => {
 router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
   const verificationCode = req.session.verificationCode;
-  if(req.cookies.jsonwebtoken) res.clearCookie('jsonwebtoken');
+  if (req.cookies.jsonwebtoken) res.clearCookie("jsonwebtoken");
 
   if (parseInt(verificationCode) === parseInt(verifyCode)) {
     try {
@@ -147,8 +147,12 @@ router.post("/signup", async (req, res) => {
               email,
               password: hash,
             });
-            const jsonwebtoken = sign({userId: result._id}, `${process.env.SECRET}`,{expiresIn: '48h'})
-            res.cookie('jsonwebtoken',jsonwebtoken,{httpOnly:true});
+            const jsonwebtoken = sign(
+              { userId: result._id },
+              `${process.env.SECRET}`,
+              { expiresIn: "48h" }
+            );
+            res.cookie("jsonwebtoken", jsonwebtoken, { httpOnly: true });
             res.send(result);
           }
         }
@@ -157,29 +161,29 @@ router.post("/signup", async (req, res) => {
       console.log("error");
     }
   }
-});//ok
+}); //ok
 
 router.get("/dashboard", async (req, res) => {
   if (req.cookies.jsonwebtoken !== undefined) {
     const jsonwebtoken = req.cookies.jsonwebtoken;
-    verify(jsonwebtoken, `${process.env.SECRET}`, async (err,decoded)=>{
-      if(err){
+    verify(jsonwebtoken, `${process.env.SECRET}`, async (err, decoded) => {
+      if (err) {
         console.log(err);
-        res.sendStatus(404)
-      }else{
-        const userId = decoded.userId
+        res.sendStatus(404);
+      } else {
+        const userId = decoded.userId;
         const user = await User.findById(userId);
         return res.send(user);
       }
-    })
+    });
   } else {
     res.sendStatus(401);
   }
-});//ok
+}); //ok
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  if(req.cookies.jsonwebtoken) res.clearCookie('jsonwebtoken');
+  if (req.cookies.jsonwebtoken) res.clearCookie("jsonwebtoken");
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -188,8 +192,12 @@ router.post("/login", async (req, res) => {
       bcrypt.compare(password, user.password, async (err, result) => {
         if (err) console.log("hash compare err: ", err);
         if (result) {
-          const jsonwebtoken = sign({userId: user._id}, `${process.env.SECRET}`,{expiresIn: '48h'})
-          res.cookie('jsonwebtoken',jsonwebtoken,{httpOnly:true});
+          const jsonwebtoken = sign(
+            { userId: user._id },
+            `${process.env.SECRET}`,
+            { expiresIn: "48h" }
+          );
+          res.cookie("jsonwebtoken", jsonwebtoken, { httpOnly: true });
           res.send(user);
         } else {
           res.sendStatus(409);
@@ -199,78 +207,19 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.log("error: ", error);
   }
-});//ok
+}); //ok
 
-router.get('/validate/:userId', async(req,res)=>{
-  const {userId} = req.params;
+router.get("/validate/:userId", async (req, res) => {
+  const { userId } = req.params;
   try {
     const data = await User.findById(userId);
-    res.status(200).send(data.PredictedData[data.PredictedData.length-1].data);
+    res
+      .status(200)
+      .send(data.PredictedData[data.PredictedData.length - 1].data);
   } catch (error) {
     console.log(error);
   }
-})//ok for now
-
-router.get("/forecast/:userId", async(req, res) => {
-  const {userId} = req.params;
-  const {model} = req.query;
-  const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // Update with the actual file path
-  const filePath2 = "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"
-  try {
-    const workbook = xlsx.readFile(filePath);
-    const workbook2 = xlsx.readFile(filePath2);
-
-    const sheetName = workbook.SheetNames[0];
-    const sheetName2 = workbook2.SheetNames[0];
-
-    const worksheet = workbook.Sheets[sheetName];
-    const worksheet2 = workbook2.Sheets[sheetName2];
-
-    const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-    const jsonData2 = xlsx.utils.sheet_to_json(worksheet2);
-    
-    const extractedData = jsonData.slice(1).map((row) => {
-      const numericValue = parseFloat(row[3]);
-      const dateObject = xlsx.SSF.parse_date_code(numericValue);
-
-      return {
-        date: `${String(dateObject.m).padStart(2, "0")}/${String(
-          dateObject.d
-        ).padStart(2, "0")}/${String(dateObject.y)}`,
-        time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
-      };
-    });
-
-    const data = [];
-    for (let index = 0; index < jsonData.length-1; index++) {
-      const Predictedpv = jsonData2[index];
-      data[index] = {...extractedData[index], PredictedPV:Predictedpv[0] }
-    }
-    const updateData = await User.findById(userId);
-    if (!updateData) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    updateData.PredictedData.push({date: new Date() ,data, model})
-    await updateData.save();
-    
-    // Send status 200
-    res.status(200).send(data);
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Error reading Excel file");
-  }
-});//ok for now
-
-router.get('/forecast/data/:userId', async(req,res)=>{
-  const {userId} = req.params;
-  try {
-    const data = await User.findById(userId);
-    res.send(data.PredictedData);
-  } catch (error) {
-    console.log(error);
-  }
-})//ok for
+}); //ok for now
 
 router.post("/verify-email", async (req, res) => {
   const { email } = req.body;
@@ -286,7 +235,7 @@ router.post("/verify-email", async (req, res) => {
   } else {
     res.sendStatus(409);
   }
-});//ok
+}); //ok
 
 router.get("/send-sms", (req, res) => {
   const PCode = generateVerificationCode();
@@ -302,7 +251,7 @@ router.get("/send-sms", (req, res) => {
   } catch (error) {
     console.log(error);
   }
-});//ok for now
+}); //ok for now
 
 router.post("/edit/:userID", async (req, res) => {
   const userID = req.params.userID;
@@ -334,7 +283,7 @@ router.post("/edit/:userID", async (req, res) => {
   } else {
     res.status(409).send("Invalid code");
   }
-});//ok for now
+}); //ok for now
 
 router.post("/send-reset-password", async (req, res) => {
   const { email } = req.body;
@@ -345,10 +294,10 @@ router.post("/send-reset-password", async (req, res) => {
   } else {
     res.sendStatus(409);
   }
-});//ok for now
+}); //ok for now
 
 router.put("/resetP/:userId", async (req, res) => {
-  const {userId} = req.params;
+  const { userId } = req.params;
   const { password } = req.body;
   try {
     bcrypt.hash(
@@ -366,73 +315,75 @@ router.put("/resetP/:userId", async (req, res) => {
         }
       }
     );
-    
+
     res.sendStatus(200);
   } catch (err) {
     res.sendStatus(401);
     console.log(err);
   }
-});//ok for now
+}); //ok for now
 
-router.post('/send-calc-mail', (req,res)=>{
-  const {email} = req.body;
+router.post("/send-calc-mail", (req, res) => {
+  const { email } = req.body;
   try {
-    sendCalcMail(email)
-    res.sendStatus(200)
+    sendCalcMail(email);
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
   }
-})//ok for now
+}); //ok for now
 
-router.post('/query',(req,res)=>{
-  const {name, email, subject, query} = req.body;
+router.post("/query", (req, res) => {
+  const { name, email, subject, query } = req.body;
   try {
-    sendQueryMail(name,email,subject,query);
-    res.sendStatus(200)
+    sendQueryMail(name, email, subject, query);
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
   }
-})//ok for now
+}); //ok for now
 
-router.get('/history/:userId', async(req,res)=>{
-  const {userId} = req.params;
+router.get("/history/:userId", async (req, res) => {
+  const { userId } = req.params;
   try {
     const history = await User.findById(userId);
-    res.status(200).send(history.PredictedData)  
+    res.status(200).send(history.PredictedData);
   } catch (error) {
     console.log(error);
   }
-})//ok for now
+}); //ok for now
 
-router.delete('/delete/:userId', async(req,res)=>{
-  const {userId} = req.params;
-  const {data} = req.query;
+router.delete("/delete/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const { data } = req.query;
   try {
     const deleteData = await User.findById(userId);
-    deleteData.PredictedData = deleteData.PredictedData.filter((elem)=> elem._id.toString() !== data)
-    await deleteData.save() 
+    deleteData.PredictedData = deleteData.PredictedData.filter(
+      (elem) => elem._id.toString() !== data
+    );
+    await deleteData.save();
     res.status(200).send(deleteData.PredictedData);
   } catch (error) {
     console.log(error);
   }
-})//ok for now
+}); //ok for now
 
 router.get("/", (req, res) => {
-  if(req.cookies.jsonwebtoken){
+  if (req.cookies.jsonwebtoken) {
     const token = req.cookies.jsonwebtoken;
-    verify(token, `${process.env.SECRET}`,async(err,decoded)=>{
-      if(err){
+    verify(token, `${process.env.SECRET}`, async (err, decoded) => {
+      if (err) {
         console.log(err);
         res.sendStatus(404);
-      }else{
+      } else {
         const userId = decoded.userId;
-        const user = await User.findById(userId)
+        const user = await User.findById(userId);
         res.status(200).send(user);
       }
-    })
-  }else{
-    res.status(409)
+    });
+  } else {
+    res.status(409);
   }
-});//ok
+}); //ok
 
 module.exports = router;

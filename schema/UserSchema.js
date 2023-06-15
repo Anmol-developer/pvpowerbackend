@@ -23,21 +23,36 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now, // Sets the default value to the current date and time
       },
-      data: [
+      randomforest: [
         {
           date: { type: Date },
           time: { type: String },
-          PredictedPV: { type: Number }
+          PredictedPV: { type: Number },
         },
       ],
-      model: {type: String}
+      knn: [
+        {
+          date: { type: Date },
+          time: { type: String },
+          PredictedPV: { type: Number },
+        },
+      ],
+      lgbm: [
+        {
+          date: { type: Date },
+          time: { type: String },
+          PredictedPV: { type: Number },
+        },
+      ],
+      svr: [
+        {
+          date: { type: Date },
+          time: { type: String },
+          PredictedPV: { type: Number },
+        },
+      ],
     },
   ],
-  // tokens: [
-  //   {
-  //     token: { type: String, required: true },
-  //   },
-  // ],
   // isCalcDone: {type:Boolean, default:false},
   phone: { type: Number, default: 123456789 },
   address: { type: String, default: "Civil Lines, IIT Roorkee, India" },
@@ -45,16 +60,5 @@ const UserSchema = new Schema({
   designation: { type: String, default: "Product Manager" },
 });
 
-//generating jwt token
-// UserSchema.methods.generateToken = async function () {
-//   try {
-//     let token = jwt.sign({ _id: this._id }, process.env.SECRET);
-//     this.tokens = this.tokens.concat({ token });
-//     await this.save();
-//     return token;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 const User = mongoose.model("User", UserSchema);
 module.exports = { User };
