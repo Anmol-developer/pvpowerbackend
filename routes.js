@@ -81,7 +81,7 @@ const sendResetPassword = (email, userID) => {
 
   transporter.sendMail(mailOpt, (err, info) => {
     if (err) console.log("mail err: ", err);
-    else console.log("sent!");
+    else console.log("Sent mail");
   });
 };
 
@@ -103,7 +103,10 @@ const sendQueryMail = (name, email, subject, query) => {
 
   transporter.sendMail(mailOpt, (err, info) => {
     if (err) console.log(err);
-    else console.log(info.response.split(" ")[2]);
+    else{
+      console.log(info.response.split(" ")[2])
+      return ('Sent mail')
+    }
   });
 };
 

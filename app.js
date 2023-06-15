@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const helmet = require("helmet");
-const routes = require('./routes.js');
+const router = require('./routes.js');
 const forecast = require('./forecast.js');
 const cookieParser = require('cookie-parser')
 
@@ -36,7 +36,7 @@ mongoose
   });
 
 // Use the routes middleware
-app.use('/', routes);
+app.use('/', router);
 app.use('/forecast', forecast);
 
 app.listen(process.env.PORT, () => {
