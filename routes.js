@@ -218,7 +218,7 @@ router.get("/validate/:userId", async (req, res) => {
     const data = await User.findById(userId);
     res
       .status(200)
-      .send(data.PredictedData[data.PredictedData.length - 1].data);
+      .send(data.PredictedData[data.PredictedData.length - 1]);
   } catch (error) {
     console.log(error);
   }
