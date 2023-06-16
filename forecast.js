@@ -58,19 +58,19 @@ router.get("/:userId", async (req, res) => {
           }
           else if(i===1){
             data.knn[index]={
-              ...extractedData,
+              ...extractedData[index],
               PredictedPV:Predictedpv[0]
             }
           }
           else if(i===2){
             data.lgbm[index]={
-              ...extractedData,
+              ...extractedData[index],
               PredictedPV:Predictedpv[0]
             }
           }
           else{
             data.svr[index]={
-              ...extractedData,
+              ...extractedData[index],
               PredictedPV:Predictedpv[0]
             }
           }
