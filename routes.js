@@ -119,17 +119,17 @@ router.get("/logout", (req, res) => {
 }); //ok
 
 // Endpoint to download the Excel file
-router.get("/download", (req, res) => {
-  const filePath =
-    "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"; // Update with the actual file path
+// router.get("/download", (req, res) => {
+//   const filePath =
+//     "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data.csv"; // Update with the actual file path
 
-  res.download(filePath, (err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Error downloading file");
-    }
-  });
-}); //ok
+//   res.download(filePath, (err) => {
+//     if (err) {
+//       console.log(err);
+//       res.status(500).send("Error downloading file");
+//     }
+//   });
+// }); //ok
 
 router.post("/signup", async (req, res) => {
   const { username, email, password, verifyCode } = req.body;
