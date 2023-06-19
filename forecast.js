@@ -55,37 +55,32 @@ router.get("/:userId", async (req, res) => {
               ...extractedData[index],
               PredictedPV: Predictedpv[0],
             };
-          }
-          else if(i===1){
-            data.knn[index]={
+          } else if (i === 1) {
+            data.knn[index] = {
               ...extractedData[index],
-              PredictedPV:Predictedpv[0]
-            }
-          }
-          else if(i===2){
-            data.lgbm[index]={
+              PredictedPV: Predictedpv[0],
+            };
+          } else if (i === 2) {
+            data.lgbm[index] = {
               ...extractedData[index],
-              PredictedPV:Predictedpv[0]
-            }
-          }
-          else{
-            data.svr[index]={
+              PredictedPV: Predictedpv[0],
+            };
+          } else {
+            data.svr[index] = {
               ...extractedData[index],
-              PredictedPV:Predictedpv[0]
-            }
+              PredictedPV: Predictedpv[0],
+            };
           }
         }
       }
     }
 
     const updateData = await User.findById(userId);
-      if (!updateData) {
-        return res.status(404).json({ error: "User not found" });
-      }
-      updateData.PredictedData.push(
-        data
-      );
-      await updateData.save();
+    if (!updateData) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    updateData.PredictedData.push(data);
+    await updateData.save();
 
     // Send status 200
     res.sendStatus(200);
