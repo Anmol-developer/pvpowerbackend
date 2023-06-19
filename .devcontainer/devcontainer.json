@@ -1,0 +1,9 @@
+{
+    "name": "Docker",
+    "dockerComposeFile": "docker-compose.yml",
+    "extensions": ["ms-vscode-remote.remote-containers"],
+    "settings": {
+      "terminal.integrated.defaultProfile.linux": "bash"
+    }
+  }
+  
