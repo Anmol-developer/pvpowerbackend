@@ -376,4 +376,8 @@ router.get("/", (req, res) => {
   }
 }); //ok
 
+router.get('/testing-docker',(req,res)=>{
+  res.send('Testing Docker');
+})
+
 module.exports = router;
