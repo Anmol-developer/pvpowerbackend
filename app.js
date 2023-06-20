@@ -9,6 +9,7 @@ const router = require('./routes.js');
 const forecast = require('./forecast.js');
 const download = require('./download.js');
 const cookieParser = require('cookie-parser')
+const calc = require('./Calc.js')
 
 app.use(cookieParser());
 
@@ -40,6 +41,7 @@ mongoose
 app.use('/', router);
 app.use('/forecast', forecast);
 app.use('/download',download)
+app.use('/calc-state',calc)
 
 app.listen(process.env.PORT, () => {
   console.log("app listening!");

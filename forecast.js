@@ -80,6 +80,7 @@ router.get("/:userId", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     updateData.PredictedData.push(data);
+    updateData.isCalcDone = true;
     await updateData.save();
 
     // Send status 200
