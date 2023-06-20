@@ -1,9 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const { User } = require("./schema/UserSchema");
-const router = express.Router();
+const { sign, verify } = require("jsonwebtoken");
+const calc = express.Router();
 
-router.post("/", (req, res) => {
+calc.post("/", (req, res) => {
   const isCalcDone = req.body.isCalcDone;
   if (req.cookies.jsonwebtoken) {
     const token = req.cookies.jsonwebtoken;
@@ -24,7 +25,7 @@ router.post("/", (req, res) => {
   }
 });
 
-router.get('/',(req,res)=>{
+calc.get('/',(req,res)=>{
     if (req.cookies.jsonwebtoken) {
         const token = req.cookies.jsonwebtoken;
         verify(token, `${process.env.SECRET}`, async (err, decoded) => {
