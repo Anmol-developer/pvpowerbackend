@@ -14,7 +14,6 @@ const path = [
 
 router.get("/:userId", async (req, res) => {
   const { userId } = req.params;
-  // const {model} = req.query;
   const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // for date and time
   try {
     const workbook = xlsx.readFile(filePath);

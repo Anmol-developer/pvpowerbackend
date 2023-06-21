@@ -376,6 +376,26 @@ router.get("/", (req, res) => {
   }
 }); //ok
 
+router.get('/close-calc',async(req,res)=>{
+  if (req.cookies.jsonwebtoken) {
+    const token = req.cookies.jsonwebtoken;
+    verify(token, `${process.env.SECRET}`, async (err, decoded) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(404);
+      } else {
+        const userId = decoded.userId;
+        const user = await User.findById(userId);
+        user.isCalcDone = null;
+        await user.save();
+        res.sendStatus(200);
+      }
+    });
+  } else {
+    res.status(409);
+  }
+})
+
 router.get('/testing-docker',(req,res)=>{
   res.send('Testing Docker');
 })

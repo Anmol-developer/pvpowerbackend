@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const { User } = require("./schema/UserSchema");
-const { sign, verify } = require("jsonwebtoken");
+const { verify } = require("jsonwebtoken");
 const calc = express.Router();
 
 calc.post("/", (req, res) => {

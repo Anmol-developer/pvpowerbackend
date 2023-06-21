@@ -53,7 +53,7 @@ const UserSchema = new Schema({
       ],
     },
   ],
-  isCalcDone: {type:Boolean, default:false},
+  isCalcDone: {type:Boolean, default:null},
   phone: { type: Number, default: 123456789 },
   address: { type: String, default: "Civil Lines, IIT Roorkee, India" },
   zipCode: { type: Number, default: 123465 },
