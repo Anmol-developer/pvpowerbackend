@@ -12,25 +12,34 @@ const path = [
   "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data_SVR.csv",
 ];
 
-router.get("/:userId", async (req, res) => {
+router.post("/:userId", async (req, res) => {
   const { userId } = req.params;
-  const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // for date and time
+  const {NextDate,Time} = req.body;
+  // const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // for date and time
   try {
-    const workbook = xlsx.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-    const extractedData = jsonData.slice(1).map((row) => {
-      const numericValue = parseFloat(row[3]);
-      const dateObject = xlsx.SSF.parse_date_code(numericValue);
-
-      return {
-        date: `${String(dateObject.m).padStart(2, "0")}/${String(
-          dateObject.d
-        ).padStart(2, "0")}/${String(dateObject.y)}`,
-        time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
-      };
-    });
+    // const workbook = xlsx.readFile(filePath);
+    // const sheetName = workbook.SheetNames[0];
+    // const worksheet = workbook.Sheets[sheetName];
+    // const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+    // const extractedData = jsonData.slice(1).map((row) => {
+    
+    const extractedData = []
+      // const numericValue = parseFloat(row[3]);
+      // const dateObject = xlsx.SSF.parse_date_code(numericValue);
+    for(let i=0; i<Time.length; i++){
+      extractedData[i] = {
+        date:NextDate,
+        time:Time[i]
+      }
+    }
+      // return {
+      //   date: `${String(dateObject.m).padStart(2, "0")}/${String(
+      //     dateObject.d
+      //   ).padStart(2, "0")}/${String(dateObject.y)}`,
+      //   // date:Date,
+      //   time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
+      // };
+    // });
 
     const data = {
       date: new Date(),
@@ -46,7 +55,7 @@ router.get("/:userId", async (req, res) => {
       const worksheet2 = workbook2.Sheets[sheetName2];
       const jsonData2 = xlsx.utils.sheet_to_json(worksheet2);
 
-      for (let index = 0; index < jsonData.length - 1; index++) {
+      for (let index = 0; index < Time.length; index++) {
         const Predictedpv = jsonData2[index];
         if (Predictedpv) {
           if (i === 0) {
