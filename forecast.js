@@ -11,35 +11,69 @@ const path = [
   "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data_LGBM.csv",
   "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data_SVR.csv",
 ];
+// const formatedDate=(date)=>{
+//   const temp = new Date(date);
+//   const month = String(temp.getMonth()+1).padStart(2, "0")
+//   const day = String(temp.getDate()).padStart(2,"0")
+//   const year = temp.getFullYear();
+//   return `${month}/${day}/${year}`
+// }
 
 router.post("/:userId", async (req, res) => {
   const { userId } = req.params;
-  const {NextDate,Time} = req.body;
-  // const filePath = "C:\\Users\\Hp\\Downloads\\test.xlsx"; // for date and time
+  const { NextDate } = req.body;
+  const time_array = [
+    "07:00:00",
+    "07:15:00",
+    "07:30:00",
+    "07:45:00",
+    "08:00:00",
+    "08:15:00",
+    "08:30:00",
+    "08:45:00",
+    "09:00:00",
+    "09:15:00",
+    "09:30:00",
+    "09:45:00",
+    "10:00:00",
+    "10:15:00",
+    "10:30:00",
+    "10:45:00",
+    "11:00:00",
+    "11:15:00",
+    "11:30:00",
+    "11:45:00",
+    "12:00:00",
+    "12:15:00",
+    "12:30:00",
+    "12:45:00",
+    "13:00:00",
+    "13:15:00",
+    "13:30:00",
+    "13:45:00",
+    "14:00:00",
+    "14:15:00",
+    "14:30:00",
+    "14:45:00",
+    "15:00:00",
+    "15:15:00",
+    "15:30:00",
+    "15:45:00",
+    "16:00:00",
+    "16:15:00",
+    "16:30:00",
+    "16:45:00",
+    "17:00:00",
+  ];
+
   try {
-    // const workbook = xlsx.readFile(filePath);
-    // const sheetName = workbook.SheetNames[0];
-    // const worksheet = workbook.Sheets[sheetName];
-    // const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-    // const extractedData = jsonData.slice(1).map((row) => {
-    
-    const extractedData = []
-      // const numericValue = parseFloat(row[3]);
-      // const dateObject = xlsx.SSF.parse_date_code(numericValue);
-    for(let i=0; i<Time.length; i++){
+    const extractedData = [];
+    for (let i = 0; i < time_array.length; i++) {
       extractedData[i] = {
         date:NextDate,
-        time:Time[i]
-      }
+        time: time_array[i],
+      };
     }
-      // return {
-      //   date: `${String(dateObject.m).padStart(2, "0")}/${String(
-      //     dateObject.d
-      //   ).padStart(2, "0")}/${String(dateObject.y)}`,
-      //   // date:Date,
-      //   time: dateObject.H + ":" + dateObject.M + ":" + dateObject.S,
-      // };
-    // });
 
     const data = {
       date: new Date(),
@@ -55,7 +89,7 @@ router.post("/:userId", async (req, res) => {
       const worksheet2 = workbook2.Sheets[sheetName2];
       const jsonData2 = xlsx.utils.sheet_to_json(worksheet2);
 
-      for (let index = 0; index < Time.length; index++) {
+      for (let index = 0; index < time_array.length; index++) {
         const Predictedpv = jsonData2[index];
         if (Predictedpv) {
           if (i === 0) {
