@@ -11,17 +11,10 @@ const path = [
   "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data_LGBM.csv",
   "C:\\Users\\Hp\\Desktop\\pvcast\\Model\\uploads\\processed_data_SVR.csv",
 ];
-// const formatedDate=(date)=>{
-//   const temp = new Date(date);
-//   const month = String(temp.getMonth()+1).padStart(2, "0")
-//   const day = String(temp.getDate()).padStart(2,"0")
-//   const year = temp.getFullYear();
-//   return `${month}/${day}/${year}`
-// }
 
 router.post("/:userId", async (req, res) => {
   const { userId } = req.params;
-  const { NextDate } = req.body;
+  const { nextdate } = req.query;
   const time_array = [
     "07:00:00",
     "07:15:00",
@@ -70,7 +63,7 @@ router.post("/:userId", async (req, res) => {
     const extractedData = [];
     for (let i = 0; i < time_array.length; i++) {
       extractedData[i] = {
-        date:NextDate,
+        date: new Date(nextdate).toLocaleDateString('en-US'),
         time: time_array[i],
       };
     }
