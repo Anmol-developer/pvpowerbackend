@@ -13,7 +13,17 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now, // Sets the default value to the current date and time
       },
-      data: Buffer,
+      data: [{
+        date:{type:String},
+        time:{type:String},
+        pv:{type:Number},
+        solarRadiation:{type:Number},
+        Temperature:{type:Number},
+        windSpeed:{type:Number},
+        RHumidity:{type:Number},
+        CloudCover:{type:Number},
+        Rainfall:{type:Number}
+      }],
     },
   ],
   PredictedData: [

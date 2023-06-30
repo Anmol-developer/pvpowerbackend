@@ -7,6 +7,7 @@ const session = require("express-session");
 const helmet = require("helmet");
 const router = require('./routes.js');
 const forecast = require('./forecast.js');
+const sendData = require('./SendData.js');
 const download = require('./download.js');
 const cookieParser = require('cookie-parser')
 const calc = require('./Calc.js')
@@ -26,7 +27,7 @@ app.use(cors({
   credentials:true
 }));
 app.use(helmet());
-app.use(express.json());
+app.use(express.json({limit:'1000mb'}));
 
 const uri = process.env.URI;
 
@@ -42,6 +43,7 @@ app.use('/', router);
 app.use('/forecast', forecast);
 app.use('/download',download)
 app.use('/calc-state',calc)
+app.use('/set-data',sendData) //saves user's uploaded data to mongodb
 
 app.listen(process.env.PORT, () => {
   console.log("app listening!");
