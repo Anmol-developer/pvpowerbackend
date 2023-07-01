@@ -30,4 +30,17 @@ sendData.get('/',async(req,res)=>{
     }
 })
 
+sendData.post('/clear',async(req,res)=>{
+  const { _id } = req.body;
+  try {
+    const user = await User.findById(_id);
+    user.data=[];
+    await user.save();
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+})
+
 module.exports = sendData

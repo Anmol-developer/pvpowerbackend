@@ -177,7 +177,7 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      res.sendStatus(409);
+      res.send([]);
     } else {
       bcrypt.compare(password, user.password, async (err, result) => {
         if (err) console.log("hash compare err: ", err);
@@ -190,7 +190,7 @@ router.post("/login", async (req, res) => {
           res.cookie("jsonwebtoken", jsonwebtoken, { httpOnly: true });
           res.send(user);
         } else {
-          res.sendStatus(409);
+          res.send([]);
         }
       });
     }
