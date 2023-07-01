@@ -34,28 +34,28 @@ const UserSchema = new Schema({
       },
       randomforest: [
         {
-          date: { type: Date },
+          date: { type: String },
           time: { type: String },
           PredictedPV: { type: Number },
         },
       ],
       knn: [
         {
-          date: { type: Date },
+          date: { type: String },
           time: { type: String },
           PredictedPV: { type: Number },
         },
       ],
       lgbm: [
         {
-          date: { type: Date },
+          date: { type: String },
           time: { type: String },
           PredictedPV: { type: Number },
         },
       ],
       svr: [
         {
-          date: { type: Date },
+          date: { type: String },
           time: { type: String },
           PredictedPV: { type: Number },
         },
